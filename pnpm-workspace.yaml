@@ -1,0 +1,2 @@
+patchedDependencies:
+  '@ai-sdk/anthropic': patches/@ai-sdk__anthropic.patch

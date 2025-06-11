@@ -1,0 +1,32 @@
+diff --git a/dist/index.js b/dist/index.js
+index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..a737df0461069affae49fd9a0f3fa6fdae503cce 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -66,7 +66,8 @@ function prepareTools(mode) {
+         anthropicTools2.push({
+           name: tool.name,
+           description: tool.description,
+-          input_schema: tool.parameters
++          input_schema: tool.parameters,
++          cache_control: { type: 'ephemeral' },
+         });
+         break;
+       case "provider-defined":
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 2cb7ae5b358178cd771425166b1813e2e971b809..4e992ce3c44e6b009be7f6b0df369c2ff19d7e9e 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -52,10 +52,12 @@ function prepareTools(mode) {
+   for (const tool of tools) {
+     switch (tool.type) {
+       case "function":
++        console.log(tool)
+         anthropicTools2.push({
+           name: tool.name,
+           description: tool.description,
+-          input_schema: tool.parameters
++          input_schema: tool.parameters,
++          cache_control: { type: 'ephemeral' }
+         });
+         break;
+       case "provider-defined":
