@@ -53,6 +53,12 @@ export async function POST(req: Request) {
     },
   });
 
+  result.request.then(requestRes => {
+    console.log("request finished")
+    const jsonResponse = JSON.parse(requestRes.body!)
+    console.log(JSON.stringify(jsonResponse, null, 2))
+  })
+
 
 
   return result.toDataStreamResponse()
