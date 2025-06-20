@@ -13,7 +13,7 @@ index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..a737df0461069affae49fd9a0f3fa6fd
          break;
        case "provider-defined":
 diff --git a/dist/index.mjs b/dist/index.mjs
-index 2cb7ae5b358178cd771425166b1813e2e971b809..4e992ce3c44e6b009be7f6b0df369c2ff19d7e9e 100644
+index 2cb7ae5b358178cd771425166b1813e2e971b809..9317946b9399405075e9edac7925829652b0ca90 100644
 --- a/dist/index.mjs
 +++ b/dist/index.mjs
 @@ -52,10 +52,12 @@ function prepareTools(mode) {
@@ -30,3 +30,12 @@ index 2cb7ae5b358178cd771425166b1813e2e971b809..4e992ce3c44e6b009be7f6b0df369c2f
          });
          break;
        case "provider-defined":
+@@ -290,7 +292,7 @@ function convertToAnthropicMessagesPrompt({
+                   tool_use_id: part.toolCallId,
+                   content: toolResultContent,
+                   is_error: part.isError,
+-                  cache_control: cacheControl
++                  cache_control: { type: "ephemeral" }
+                 });
+               }
+               break;

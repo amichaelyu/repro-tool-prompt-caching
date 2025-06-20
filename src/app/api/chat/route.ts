@@ -1,5 +1,5 @@
 import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
-import { generateText, streamText, tool } from 'ai';
+import { CoreMessage, generateText, streamText, tool } from 'ai';
 import * as z from 'zod'
 
 // Allow streaming responses up to 30 seconds
@@ -22,6 +22,34 @@ export const weatherTool = tool({
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
+
+
+  const ms = messages as CoreMessage[]
+
+  const messagesWithCache = ms.map(message => {
+    if (message.role === 'tool') {
+      return {
+        ...message,
+        content: message.content.map(part => {
+          if (part.type === 'tool-result') {
+            return {
+              ...part,
+              providerOptions: {
+                anthropic: {
+                  cacheControl: { type: 'ephemeral' },
+                },
+              },
+            };
+          }
+          return part;
+        }),
+      };
+    }
+    return message;
+  });
+
+
+
   const result = streamText({
     maxSteps: 10,
     model: anthropic('claude-3-5-haiku-latest'),
@@ -44,7 +72,10 @@ export async function POST(req: Request) {
 
       return
     },
-    messages,
+    onError(error) {
+      console.log(error)
+    },
+    messages: messagesWithCache,
     providerOptions: {
       anthropic: {
         cache_control: { type: 'ephemeral' },
