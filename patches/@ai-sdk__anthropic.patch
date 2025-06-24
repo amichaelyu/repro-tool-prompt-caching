@@ -1,41 +1,40 @@
 diff --git a/dist/index.js b/dist/index.js
-index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..a737df0461069affae49fd9a0f3fa6fdae503cce 100644
+index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..f21d1b97007e6b1f9997284b2b3eeb47a401e471 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -66,7 +66,8 @@ function prepareTools(mode) {
-         anthropicTools2.push({
-           name: tool.name,
-           description: tool.description,
--          input_schema: tool.parameters
-+          input_schema: tool.parameters,
-+          cache_control: { type: 'ephemeral' },
-         });
-         break;
-       case "provider-defined":
-diff --git a/dist/index.mjs b/dist/index.mjs
-index 2cb7ae5b358178cd771425166b1813e2e971b809..9317946b9399405075e9edac7925829652b0ca90 100644
---- a/dist/index.mjs
-+++ b/dist/index.mjs
-@@ -52,10 +52,12 @@ function prepareTools(mode) {
-   for (const tool of tools) {
-     switch (tool.type) {
-       case "function":
-+        console.log(tool)
-         anthropicTools2.push({
-           name: tool.name,
-           description: tool.description,
--          input_schema: tool.parameters
-+          input_schema: tool.parameters,
-+          cache_control: { type: 'ephemeral' }
-         });
-         break;
-       case "provider-defined":
-@@ -290,7 +292,7 @@ function convertToAnthropicMessagesPrompt({
+@@ -294,12 +294,14 @@ function convertToAnthropicMessagesPrompt({
+                       };
+                   }
+                 }) : JSON.stringify(part.result);
++                // Only cache the last 4 tool results
++                const shouldCache = content.length - i2 <= 4;
+                 anthropicContent.push({
+                   type: "tool_result",
                    tool_use_id: part.toolCallId,
                    content: toolResultContent,
                    is_error: part.isError,
 -                  cache_control: cacheControl
-+                  cache_control: { type: "ephemeral" }
++                  cache_control: shouldCache ? { type: "ephemeral" } : void 0
+                 });
+               }
+               break;
+diff --git a/dist/index.mjs b/dist/index.mjs
+index 2cb7ae5b358178cd771425166b1813e2e971b809..974ae79283ea7c134515302d2dbd86c08164b48e 100644
+--- a/dist/index.mjs
++++ b/dist/index.mjs
+@@ -285,12 +285,14 @@ function convertToAnthropicMessagesPrompt({
+                       };
+                   }
+                 }) : JSON.stringify(part.result);
++                // Only cache the last 4 tool results
++                const shouldCache = content.length - i2 <= 4;
+                 anthropicContent.push({
+                   type: "tool_result",
+                   tool_use_id: part.toolCallId,
+                   content: toolResultContent,
+                   is_error: part.isError,
+-                  cache_control: cacheControl
++                  cache_control: shouldCache ? { type: "ephemeral" } : void 0
                  });
                }
                break;
