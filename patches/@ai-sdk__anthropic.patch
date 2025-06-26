@@ -1,40 +1,102 @@
 diff --git a/dist/index.js b/dist/index.js
-index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..f21d1b97007e6b1f9997284b2b3eeb47a401e471 100644
+index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..fcba2cb326d85e149640c87285f841a290a89467 100644
 --- a/dist/index.js
 +++ b/dist/index.js
-@@ -294,12 +294,14 @@ function convertToAnthropicMessagesPrompt({
-                       };
-                   }
-                 }) : JSON.stringify(part.result);
-+                // Only cache the last 4 tool results
-+                const shouldCache = content.length - i2 <= 4;
-                 anthropicContent.push({
-                   type: "tool_result",
-                   tool_use_id: part.toolCallId,
-                   content: toolResultContent,
-                   is_error: part.isError,
--                  cache_control: cacheControl
-+                  cache_control: shouldCache ? { type: "ephemeral" } : void 0
-                 });
-               }
-               break;
+@@ -61,7 +61,8 @@ function prepareTools(mode) {
+   }
+   const anthropicTools2 = [];
+   for (const tool of tools) {
+-    switch (tool.type) {
++    switch (tool.type)
++    {
+       case "function":
+         anthropicTools2.push({
+           name: tool.name,
+@@ -129,6 +130,9 @@ function prepareTools(mode) {
+         break;
+     }
+   }
++  if (anthropicTools2.length > 0) {
++    anthropicTools2[anthropicTools2.length - 1].cache_control = { type: 'ephemeral' };
++  }
+   const toolChoice = mode.toolChoice;
+   if (toolChoice == null) {
+     return {
+@@ -191,9 +195,13 @@ function convertToAnthropicMessagesPrompt({
+     const cacheControlValue = (_a2 = anthropic2 == null ? void 0 : anthropic2.cacheControl) != null ? _a2 : anthropic2 == null ? void 0 : anthropic2.cache_control;
+     return cacheControlValue;
+   }
++  const lastUserBlockIndex = blocks.map((block, index) =>
++    block.type === "user" ? index : -1
++  ).filter(index => index !== -1).pop() ?? -1;
+   for (let i = 0; i < blocks.length; i++) {
+     const block = blocks[i];
+     const isLastBlock = i === blocks.length - 1;
++    const isLastUserBlock = i === lastUserBlockIndex;
+     const type = block.type;
+     switch (type) {
+       case "system": {
+@@ -218,7 +226,7 @@ function convertToAnthropicMessagesPrompt({
+               for (let j = 0; j < content.length; j++) {
+                 const part = content[j];
+                 const isLastPart = j === content.length - 1;
+-                const cacheControl = (_a = getCacheControl(part.providerMetadata)) != null ? _a : isLastPart ? getCacheControl(message.providerMetadata) : void 0;
++                const cacheControl = (isLastUserBlock ? 'ephemeral' : (_a = getCacheControl(part.providerMetadata)) != null ? _a : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
+                 switch (part.type) {
+                   case "text": {
+                     anthropicContent.push({
+@@ -272,7 +280,7 @@ function convertToAnthropicMessagesPrompt({
+               for (let i2 = 0; i2 < content.length; i2++) {
+                 const part = content[i2];
+                 const isLastPart = i2 === content.length - 1;
+-                const cacheControl = (_c = getCacheControl(part.providerMetadata)) != null ? _c : isLastPart ? getCacheControl(message.providerMetadata) : void 0;
++                const cacheControl = (isLastUserBlock ? 'ephemeral' : (_c = getCacheControl(part.providerMetadata)) != null ? _c : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
+                 const toolResultContent = part.content != null ? part.content.map((part2) => {
+                   var _a2;
+                   switch (part2.type) {
 diff --git a/dist/index.mjs b/dist/index.mjs
-index 2cb7ae5b358178cd771425166b1813e2e971b809..974ae79283ea7c134515302d2dbd86c08164b48e 100644
+index 2cb7ae5b358178cd771425166b1813e2e971b809..6fce0ccbd61ba034d62e94ea2b6a192c70bdc0e5 100644
 --- a/dist/index.mjs
 +++ b/dist/index.mjs
-@@ -285,12 +285,14 @@ function convertToAnthropicMessagesPrompt({
-                       };
-                   }
-                 }) : JSON.stringify(part.result);
-+                // Only cache the last 4 tool results
-+                const shouldCache = content.length - i2 <= 4;
-                 anthropicContent.push({
-                   type: "tool_result",
-                   tool_use_id: part.toolCallId,
-                   content: toolResultContent,
-                   is_error: part.isError,
--                  cache_control: cacheControl
-+                  cache_control: shouldCache ? { type: "ephemeral" } : void 0
-                 });
-               }
-               break;
+@@ -118,6 +118,9 @@ function prepareTools(mode) {
+         break;
+     }
+   }
++  if (anthropicTools2.length > 0) {
++    anthropicTools2[anthropicTools2.length - 1].cache_control = { type: 'ephemeral' };
++  }
+   const toolChoice = mode.toolChoice;
+   if (toolChoice == null) {
+     return {
+@@ -182,9 +185,13 @@ function convertToAnthropicMessagesPrompt({
+     const cacheControlValue = (_a2 = anthropic2 == null ? void 0 : anthropic2.cacheControl) != null ? _a2 : anthropic2 == null ? void 0 : anthropic2.cache_control;
+     return cacheControlValue;
+   }
++  const lastUserBlockIndex = blocks.map((block, index) =>
++    block.type === "user" ? index : -1
++  ).filter(index => index !== -1).pop() ?? -1;
+   for (let i = 0; i < blocks.length; i++) {
+     const block = blocks[i];
+     const isLastBlock = i === blocks.length - 1;
++    const isLastUserBlock = i === lastUserBlockIndex;
+     const type = block.type;
+     switch (type) {
+       case "system": {
+@@ -209,7 +216,7 @@ function convertToAnthropicMessagesPrompt({
+               for (let j = 0; j < content.length; j++) {
+                 const part = content[j];
+                 const isLastPart = j === content.length - 1;
+-                const cacheControl = (_a = getCacheControl(part.providerMetadata)) != null ? _a : isLastPart ? getCacheControl(message.providerMetadata) : void 0;
++                const cacheControl = (isLastUserBlock ? { type: 'ephemeral' } : (_a = getCacheControl(part.providerMetadata)) != null ? _a : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
+                 switch (part.type) {
+                   case "text": {
+                     anthropicContent.push({
+@@ -263,7 +270,7 @@ function convertToAnthropicMessagesPrompt({
+               for (let i2 = 0; i2 < content.length; i2++) {
+                 const part = content[i2];
+                 const isLastPart = i2 === content.length - 1;
+-                const cacheControl = (_c = getCacheControl(part.providerMetadata)) != null ? _c : isLastPart ? getCacheControl(message.providerMetadata) : void 0;
++                const cacheControl = (isLastUserBlock ? { type: 'ephemeral' } : (_c = getCacheControl(part.providerMetadata)) != null ? _c : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
+                 const toolResultContent = part.content != null ? part.content.map((part2) => {
+                   var _a2;
+                   switch (part2.type) {

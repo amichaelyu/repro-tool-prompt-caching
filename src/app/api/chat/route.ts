@@ -1,7 +1,7 @@
 import {anthropic} from '@ai-sdk/anthropic';
-import {CoreMessage, streamText, tool} from 'ai';
+import {convertToCoreMessages, Message as CoreMessage, streamText, tool} from 'ai';
 import * as z from 'zod'
-import {harryPotter, independence, pride} from "@/app/api/chat/initial-html";
+import {harryPotter, independence, pride, regularPrompt} from "@/app/api/chat/initial-html";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -21,11 +21,31 @@ export const weatherTool = tool({
   },
 });
 
+export function generateUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export async function POST(req: Request) {
   const {messages} = await req.json();
 
+  const systemMessage = {
+    id: generateUUID(),
+    role: 'system',
+    content: regularPrompt,
+    providerOptions: {
+      anthropic: { cacheControl: { type: 'ephemeral' } },
+    },
+  } as CoreMessage;
 
-  const ms = messages as CoreMessage[]
+  const ms: CoreMessage[] = [
+    systemMessage,
+    // @ts-expect-error - convertToCoreMessages is not typed VERCEL AI SDK REQUIREMENT
+    ...convertToCoreMessages(messages)
+  ];
 
   // const messagesWithCache = ms.map(message => {
   //   if (message.role === 'tool') {
@@ -35,7 +55,7 @@ export async function POST(req: Request) {
   //         if (part.type === 'tool-result') {
   //           return {
   //             ...part,
-  //             providerMetadata: {
+  //             providerOptions: {
   //               anthropic: {
   //                 cacheControl: {type: 'ephemeral'},
   //               },
@@ -113,9 +133,9 @@ export async function POST(req: Request) {
       return
     },
     onError(error) {
-      console.log(error)
+      // console.log(error)
     },
-    messages,
+    messages: ms,
     providerOptions: {
       anthropic: {
         cache_control: {type: 'ephemeral'},
@@ -124,11 +144,10 @@ export async function POST(req: Request) {
     },
   });
 
-  result.request.then(requestRes => {
-    console.log("request finished")
-    const jsonResponse = JSON.parse(requestRes.body!)
-    console.log(JSON.stringify(jsonResponse, null, 2))
-  })
+  // result.request.then(requestRes => {
+  //   const jsonResponse = JSON.parse(requestRes.body!)
+  //   console.log("Request being sent:", JSON.stringify(jsonResponse, null, 2))
+  // })
 
 
   return result.toDataStreamResponse()

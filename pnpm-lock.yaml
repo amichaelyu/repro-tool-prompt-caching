@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@ai-sdk/anthropic':
-    hash: 123af16d2d3015d358acbb63e94071b71705419858df714008734b24ffd9ae2a
+    hash: dcd8814c5187c74c153deff035930b5205abe320f9c22a4ff7283a2bf765bcb0
     path: patches/@ai-sdk__anthropic.patch
 
 importers:
@@ -15,7 +15,7 @@ importers:
     dependencies:
       '@ai-sdk/anthropic':
         specifier: ^1.2.12
-        version: 1.2.12(patch_hash=123af16d2d3015d358acbb63e94071b71705419858df714008734b24ffd9ae2a)(zod@3.25.57)
+        version: 1.2.12(patch_hash=dcd8814c5187c74c153deff035930b5205abe320f9c22a4ff7283a2bf765bcb0)(zod@3.25.57)
       '@ai-sdk/react':
         specifier: ^1.2.12
         version: 1.2.12(react@19.1.0)(zod@3.25.57)
@@ -1915,7 +1915,7 @@ packages:
 
 snapshots:
 
-  '@ai-sdk/anthropic@1.2.12(patch_hash=123af16d2d3015d358acbb63e94071b71705419858df714008734b24ffd9ae2a)(zod@3.25.57)':
+  '@ai-sdk/anthropic@1.2.12(patch_hash=dcd8814c5187c74c153deff035930b5205abe320f9c22a4ff7283a2bf765bcb0)(zod@3.25.57)':
     dependencies:
       '@ai-sdk/provider': 1.1.3
       '@ai-sdk/provider-utils': 2.2.8(zod@3.25.57)
