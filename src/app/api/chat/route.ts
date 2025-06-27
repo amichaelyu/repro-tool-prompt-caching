@@ -136,19 +136,18 @@ export async function POST(req: Request) {
       // console.log(error)
     },
     messages: ms,
-    providerOptions: {
-      anthropic: {
-        cache_control: {type: 'ephemeral'},
-        // cacheToolDefinitions: true,
-      },
-    },
+    // providerOptions: {
+    //   anthropic: {
+    //     cache_control: {type: 'ephemeral'},
+    //     // cacheToolDefinitions: true,
+    //   },
+    // },
   });
 
-  // result.request.then(requestRes => {
-  //   const jsonResponse = JSON.parse(requestRes.body!)
-  //   console.log("Request being sent:", JSON.stringify(jsonResponse, null, 2))
-  // })
-
+  result.request.then(requestRes => {
+    const jsonResponse = JSON.parse(requestRes.body!)
+    console.log("Request being sent:", JSON.stringify(jsonResponse, null, 2))
+  })
 
   return result.toDataStreamResponse()
 }

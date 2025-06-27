@@ -1,5 +1,83 @@
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+new file mode 100644
+index 0000000000000000000000000000000000000000..96bb6507227449a73fbbd9059e66e760ee6d5fdd
+--- /dev/null
++++ b/.idea/workspace.xml
+@@ -0,0 +1,71 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
++  <component name="ChangeListManager">
++    <list default="true" id="d96fc60c-049f-420c-bf68-31fd0618b864" name="Changes" comment="" />
++    <option name="SHOW_DIALOG" value="false" />
++    <option name="HIGHLIGHT_CONFLICTS" value="true" />
++    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
++    <option name="LAST_RESOLUTION" value="IGNORE" />
++  </component>
++  <component name="HighlightingSettingsPerFile">
++    <setting file="file://$PROJECT_DIR$/dist/index.js" root0="FORCE_HIGHLIGHTING" />
++    <setting file="file://$PROJECT_DIR$/dist/index.mjs" root0="FORCE_HIGHLIGHTING" />
++  </component>
++  <component name="ProjectColorInfo">{
++  &quot;associatedIndex&quot;: 5
++}</component>
++  <component name="ProjectId" id="2yvf9ld9PAa3Zlk6kOmsNeLpAqp" />
++  <component name="ProjectViewState">
++    <option name="compactDirectories" value="true" />
++    <option name="hideEmptyMiddlePackages" value="true" />
++    <option name="showLibraryContents" value="true" />
++  </component>
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
++    &quot;javascript.nodejs.core.library.configured.version&quot;: &quot;24.1.0&quot;,
++    &quot;javascript.nodejs.core.library.typings.version&quot;: &quot;24.0.3&quot;,
++    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;pnpm&quot;,
++    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
++    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
++    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.general&quot;,
++    &quot;ts.external.directory.path&quot;: &quot;/Users/michaelyu/Applications/WebStorm.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
++  }
++}</component>
++  <component name="SharedIndexes">
++    <attachedChunks>
++      <set>
++        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-WS-251.26927.40" />
++      </set>
++    </attachedChunks>
++  </component>
++  <component name="TaskManager">
++    <task active="true" id="Default" summary="Default task">
++      <changelist id="d96fc60c-049f-420c-bf68-31fd0618b864" name="Changes" comment="" />
++      <created>1750719818951</created>
++      <option name="number" value="Default" />
++      <option name="presentableId" value="Default" />
++      <updated>1750719818951</updated>
++      <workItem from="1750719820245" duration="6438000" />
++      <workItem from="1750899157942" duration="18545000" />
++      <workItem from="1750997750376" duration="314000" />
++    </task>
++    <servers />
++  </component>
++  <component name="TypeScriptGeneratedFilesManager">
++    <option name="version" value="3" />
++  </component>
++</project>
+\ No newline at end of file
 diff --git a/dist/index.js b/dist/index.js
-index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..fcba2cb326d85e149640c87285f841a290a89467 100644
+index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..1c8c3e7d3e2663ab627ef925664a5266cc772a63 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -61,7 +61,8 @@ function prepareTools(mode) {
@@ -22,40 +100,62 @@ index 9e5f845538afd96f4ca7c122e51855d5e33e0b10..fcba2cb326d85e149640c87285f841a2
    const toolChoice = mode.toolChoice;
    if (toolChoice == null) {
      return {
-@@ -191,9 +195,13 @@ function convertToAnthropicMessagesPrompt({
+@@ -191,9 +195,26 @@ function convertToAnthropicMessagesPrompt({
      const cacheControlValue = (_a2 = anthropic2 == null ? void 0 : anthropic2.cacheControl) != null ? _a2 : anthropic2 == null ? void 0 : anthropic2.cache_control;
      return cacheControlValue;
    }
-+  const lastUserBlockIndex = blocks.map((block, index) =>
-+    block.type === "user" ? index : -1
-+  ).filter(index => index !== -1).pop() ?? -1;
++  let lastUserBlockIndex = blocks.reduce((lastIdx, block, index) =>
++    block.type === "user" ? index : lastIdx, -1
++  );
++  let lastAssistantBlockIndex = blocks.reduce((lastIdx, block, index) =>
++    block.type === "assistant" ? index : lastIdx, -1
++  );
++  if (lastUserBlockIndex > lastAssistantBlockIndex) {
++    // user is last
++    // set assistant to -1
++    lastAssistantBlockIndex = -1;
++  } else if (lastAssistantBlockIndex > lastUserBlockIndex) {
++    // assistant is last
++    // set user to -11
++    lastUserBlockIndex = -1;
++  }
    for (let i = 0; i < blocks.length; i++) {
      const block = blocks[i];
      const isLastBlock = i === blocks.length - 1;
 +    const isLastUserBlock = i === lastUserBlockIndex;
++    const isLastAssistantBlock = i === lastAssistantBlockIndex;
      const type = block.type;
      switch (type) {
        case "system": {
-@@ -218,7 +226,7 @@ function convertToAnthropicMessagesPrompt({
+@@ -218,7 +239,7 @@ function convertToAnthropicMessagesPrompt({
                for (let j = 0; j < content.length; j++) {
                  const part = content[j];
                  const isLastPart = j === content.length - 1;
 -                const cacheControl = (_a = getCacheControl(part.providerMetadata)) != null ? _a : isLastPart ? getCacheControl(message.providerMetadata) : void 0;
-+                const cacheControl = (isLastUserBlock ? 'ephemeral' : (_a = getCacheControl(part.providerMetadata)) != null ? _a : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
++                const cacheControl = (isLastUserBlock ? { type: 'ephemeral' } : (_a = getCacheControl(part.providerMetadata)) != null ? _a : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
                  switch (part.type) {
                    case "text": {
                      anthropicContent.push({
-@@ -272,7 +280,7 @@ function convertToAnthropicMessagesPrompt({
+@@ -272,7 +293,7 @@ function convertToAnthropicMessagesPrompt({
                for (let i2 = 0; i2 < content.length; i2++) {
                  const part = content[i2];
                  const isLastPart = i2 === content.length - 1;
 -                const cacheControl = (_c = getCacheControl(part.providerMetadata)) != null ? _c : isLastPart ? getCacheControl(message.providerMetadata) : void 0;
-+                const cacheControl = (isLastUserBlock ? 'ephemeral' : (_c = getCacheControl(part.providerMetadata)) != null ? _c : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
++                const cacheControl = (isLastUserBlock ? { type: 'ephemeral' } : (_c = getCacheControl(part.providerMetadata)) != null ? _c : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
                  const toolResultContent = part.content != null ? part.content.map((part2) => {
                    var _a2;
                    switch (part2.type) {
+@@ -322,7 +343,7 @@ function convertToAnthropicMessagesPrompt({
+           for (let k = 0; k < content.length; k++) {
+             const part = content[k];
+             const isLastContentPart = k === content.length - 1;
+-            const cacheControl = (_d = getCacheControl(part.providerMetadata)) != null ? _d : isLastContentPart ? getCacheControl(message.providerMetadata) : void 0;
++            const cacheControl = (isLastAssistantBlock ? { type: 'ephemeral' } : (_d = getCacheControl(part.providerMetadata)) != null ? _d : isLastContentPart ? getCacheControl(message.providerMetadata) : void 0);
+             switch (part.type) {
+               case "text": {
+                 anthropicContent.push({
 diff --git a/dist/index.mjs b/dist/index.mjs
-index 2cb7ae5b358178cd771425166b1813e2e971b809..6fce0ccbd61ba034d62e94ea2b6a192c70bdc0e5 100644
+index 2cb7ae5b358178cd771425166b1813e2e971b809..07098571f75cfb61c5dca2dd336ca58338aa905f 100644
 --- a/dist/index.mjs
 +++ b/dist/index.mjs
 @@ -118,6 +118,9 @@ function prepareTools(mode) {
@@ -68,21 +168,34 @@ index 2cb7ae5b358178cd771425166b1813e2e971b809..6fce0ccbd61ba034d62e94ea2b6a192c
    const toolChoice = mode.toolChoice;
    if (toolChoice == null) {
      return {
-@@ -182,9 +185,13 @@ function convertToAnthropicMessagesPrompt({
+@@ -182,9 +185,26 @@ function convertToAnthropicMessagesPrompt({
      const cacheControlValue = (_a2 = anthropic2 == null ? void 0 : anthropic2.cacheControl) != null ? _a2 : anthropic2 == null ? void 0 : anthropic2.cache_control;
      return cacheControlValue;
    }
-+  const lastUserBlockIndex = blocks.map((block, index) =>
-+    block.type === "user" ? index : -1
-+  ).filter(index => index !== -1).pop() ?? -1;
++  let lastUserBlockIndex = blocks.reduce((lastIdx, block, index) =>
++    block.type === "user" ? index : lastIdx, -1
++  );
++  let lastAssistantBlockIndex = blocks.reduce((lastIdx, block, index) =>
++    block.type === "assistant" ? index : lastIdx, -1
++  );
++  if (lastUserBlockIndex > lastAssistantBlockIndex) {
++    // user is last
++    // set assistant to -1
++    lastAssistantBlockIndex = -1;
++  } else if (lastAssistantBlockIndex > lastUserBlockIndex) {
++    // assistant is last
++    // set user to -11
++    lastUserBlockIndex = -1;
++  }
    for (let i = 0; i < blocks.length; i++) {
      const block = blocks[i];
      const isLastBlock = i === blocks.length - 1;
 +    const isLastUserBlock = i === lastUserBlockIndex;
++    const isLastAssistantBlock = i === lastAssistantBlockIndex;
      const type = block.type;
      switch (type) {
        case "system": {
-@@ -209,7 +216,7 @@ function convertToAnthropicMessagesPrompt({
+@@ -209,7 +229,7 @@ function convertToAnthropicMessagesPrompt({
                for (let j = 0; j < content.length; j++) {
                  const part = content[j];
                  const isLastPart = j === content.length - 1;
@@ -91,7 +204,7 @@ index 2cb7ae5b358178cd771425166b1813e2e971b809..6fce0ccbd61ba034d62e94ea2b6a192c
                  switch (part.type) {
                    case "text": {
                      anthropicContent.push({
-@@ -263,7 +270,7 @@ function convertToAnthropicMessagesPrompt({
+@@ -263,7 +283,7 @@ function convertToAnthropicMessagesPrompt({
                for (let i2 = 0; i2 < content.length; i2++) {
                  const part = content[i2];
                  const isLastPart = i2 === content.length - 1;
@@ -100,3 +213,12 @@ index 2cb7ae5b358178cd771425166b1813e2e971b809..6fce0ccbd61ba034d62e94ea2b6a192c
                  const toolResultContent = part.content != null ? part.content.map((part2) => {
                    var _a2;
                    switch (part2.type) {
+@@ -313,7 +333,7 @@ function convertToAnthropicMessagesPrompt({
+           for (let k = 0; k < content.length; k++) {
+             const part = content[k];
+             const isLastContentPart = k === content.length - 1;
+-            const cacheControl = (_d = getCacheControl(part.providerMetadata)) != null ? _d : isLastContentPart ? getCacheControl(message.providerMetadata) : void 0;
++            const cacheControl = (isLastAssistantBlock ? { type: 'ephemeral' } : (_d = getCacheControl(part.providerMetadata)) != null ? _d : isLastPart ? getCacheControl(message.providerMetadata) : void 0);
+             switch (part.type) {
+               case "text": {
+                 anthropicContent.push({
