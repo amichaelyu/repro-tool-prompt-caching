@@ -144,10 +144,10 @@ export async function POST(req: Request) {
     // },
   });
 
-  result.request.then(requestRes => {
-    const jsonResponse = JSON.parse(requestRes.body!)
-    console.log("Request being sent:", JSON.stringify(jsonResponse, null, 2))
-  })
+  // result.request.then(requestRes => {
+  //   const jsonResponse = JSON.parse(requestRes.body!)
+  //   console.log("Request being sent:", JSON.stringify(jsonResponse, null, 2))
+  // })
 
   return result.toDataStreamResponse()
 }
