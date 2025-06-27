@@ -127,7 +127,7 @@ export async function POST(req: Request) {
       // }
     },
     onStepFinish(step) {
-      console.log(JSON.stringify(step, null, 2))
+      // console.log(JSON.stringify(step, null, 2))
       console.log(JSON.stringify(step.providerMetadata, null, 2))
       console.log(JSON.stringify(step.usage, null, 2))
       return
